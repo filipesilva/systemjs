@@ -1,5 +1,5 @@
 /*
- * SystemJS v0.20.0-rc.8 Dev
+ * SystemJS v0.20.0 Dev
  */
 (function () {
 'use strict';
@@ -3162,6 +3162,13 @@ var nodeRequire;
 if (typeof require !== 'undefined' && typeof process !== 'undefined' && !process.browser)
   nodeRequire = require;
 
+function setMetaEsModule (metadata, moduleValue) {
+  if (metadata.load.esModule && !('__esModule' in moduleValue))
+    Object.defineProperty(moduleValue, '__esModule', {
+      value: true
+    });
+}
+
 function instantiate$1 (key, processAnonRegister) {
   var loader = this;
   var config = this[CONFIG];
@@ -3213,6 +3220,7 @@ function instantiate$1 (key, processAnonRegister) {
           metadata.load.format = 'global';
           var globalValue = getGlobalValue(metadata.load.exports);
           loader.registerDynamic([], false, function () {
+            setMetaEsModule(metadata, globalValue);
             return globalValue;
           });
           processAnonRegister();
@@ -3517,6 +3525,8 @@ function translateAndInstantiate (loader, key, source, metadata, processAnonRegi
           if (err)
             throw err;
 
+          setMetaEsModule(metadata, exports);
+
           envGlobal.__cjsWrapper = undefined;
           envGlobal.define = define;
         });
@@ -3551,7 +3561,9 @@ function translateAndInstantiate (loader, key, source, metadata, processAnonRegi
           if (err)
             throw err;
 
-          return retrieveGlobal();
+          var output = retrieveGlobal();
+          setMetaEsModule(metadata, output);
+          return output;
         });
         registered = processAnonRegister();
       break;
@@ -3911,7 +3923,7 @@ SystemJSLoader$1.prototype.registerDynamic = function (key, deps, executingRequi
   return RegisterLoader$1.prototype.registerDynamic.call(this, key, deps, executingRequire, execute);
 };
 
-SystemJSLoader$1.prototype.version = "0.20.0-rc.8 Dev";
+SystemJSLoader$1.prototype.version = "0.20.0 Dev";
 
 var System = new SystemJSLoader$1();
 
